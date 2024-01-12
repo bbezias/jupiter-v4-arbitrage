@@ -365,23 +365,19 @@ async function main() {
             arbSettings.threshold,
             JSBI.subtract(best.otherAmountThreshold, best.inAmount)
           );
-          if (result)
-          // update slippage with "profit or kill" slippage
+          if (result) {
+            // update slippage with "profit or kill" slippage
             best.otherAmountThreshold = best.inAmount;
-            best.slippageBps = Math.trunc(Math.abs(1 - JSBI.toNumber(JSBI.divide(best.inAmount, best.otherAmountThreshold))) * 10000);
             executeSwap({
               jupiter,
               routeInfo: best!,
               tokenData: tokenParams,
             }).catch((e) => console.log(e));
+          }
 
           const value = JSBI.subtract(best.otherAmountThreshold, best.inAmount);
 
-          console.log(
-            tokenParams.ccy,
-            "Spread",
-            value.toString()
-          );
+          console.log(tokenParams.ccy, "Spread", value.toString());
           spreadMetrics.labels(tokenParams.ccy).set(JSBI.toNumber(value));
         } else {
           console.log(tokenParams.ccy, tokenParams.token, "No route found");
