@@ -86,7 +86,7 @@ const balanceMetrics = new client.Gauge({
 });
 
 // Balance
-const SpreadMetrics = new client.Gauge({
+const spreadMetrics = new client.Gauge({
   name: "spread",
   help: "Spread between in and out",
   labelNames: ["ccy"],
@@ -95,7 +95,7 @@ const SpreadMetrics = new client.Gauge({
 // Register the metrics
 register.registerMetric(attemptsMetrics);
 register.registerMetric(balanceMetrics);
-register.registerMetric(SpreadMetrics);
+register.registerMetric(spreadMetrics);
 
 const app = express();
 
@@ -372,11 +372,14 @@ async function main() {
               tokenData: tokenParams,
             }).catch((e) => console.log(e));
 
+          const value = JSBI.subtract(best.otherAmountThreshold, best.inAmount);
+
           console.log(
             tokenParams.ccy,
             "Spread",
-            JSBI.subtract(best.otherAmountThreshold, best.inAmount).toString()
+            value.toString()
           );
+          spreadMetrics.labels(tokenParams.ccy).set(JSBI.toNumber(value));
         } else {
           console.log(tokenParams.ccy, tokenParams.token, "No route found");
         }
@@ -398,6 +401,7 @@ async function runBot() {
   await setSettingsFromMongo();
   await updateBalance();
   setInterval(updateBalance, 60 * 1000);
+  setInterval(setSettingsFromMongo, 30 * 1000);
   main();
 }
 
