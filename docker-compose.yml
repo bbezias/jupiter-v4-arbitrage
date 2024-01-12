@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  bot-arbitrage-v4:
+    build: .
+    image: bot-arbitrage-v4
+    restart: unless-stopped
+    command: sh -c "yarn start"
+    volumes:
+      - ./.env:/app/.env
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
