@@ -366,6 +366,9 @@ async function main() {
             JSBI.subtract(best.otherAmountThreshold, best.inAmount)
           );
           if (result)
+          // update slippage with "profit or kill" slippage
+            best.otherAmountThreshold = best.inAmount;
+            best.slippageBps = Math.trunc(Math.abs(1 - JSBI.toNumber(JSBI.divide(best.inAmount, best.otherAmountThreshold))) * 10000);
             executeSwap({
               jupiter,
               routeInfo: best!,
